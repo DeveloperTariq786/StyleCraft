@@ -1,14 +1,13 @@
-import { createServer } from 'http';
-import { parse } from 'url';
 import express, { type Request, Response, NextFunction } from 'express';
 import { registerRoutes } from '../server/routes';
 
+// Create Express app
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Register API routes
-registerRoutes(app);
+const server = registerRoutes(app);
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -17,9 +16,15 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({ message });
 });
 
-export default async (req: any, res: any) => {
-  const parsedUrl = parse(req.url!, true);
-  
-  // Handle API requests through Express
-  app(req, res);
-}; 
+// Vercel serverless function handler
+export default async function handler(req: any, res: any) {
+  return new Promise((resolve, reject) => {
+    // Process the request through Express
+    app(req, res, (err: any) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(undefined);
+    });
+  });
+} 
