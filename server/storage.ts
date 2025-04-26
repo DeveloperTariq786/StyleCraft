@@ -107,7 +107,9 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id, 
       isAdmin: false, 
-      createdAt
+      createdAt,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null
     };
     this.users.set(id, user);
     return user;
@@ -175,7 +177,7 @@ export class MemStorage implements IStorage {
     if (options.sort) {
       switch (options.sort) {
         case 'newest':
-          products.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+          products.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
           break;
         case 'price-low-high':
           products.sort((a, b) => a.price - b.price);
@@ -189,7 +191,7 @@ export class MemStorage implements IStorage {
       }
     } else {
       // Default sort by newest
-      products.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      products.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
     }
     
     // Apply pagination
@@ -231,10 +233,27 @@ export class MemStorage implements IStorage {
     const id = this.productId++;
     const now = new Date();
     const product: Product = {
-      ...insertProduct,
       id,
+      name: insertProduct.name,
+      description: insertProduct.description,
+      price: insertProduct.price,
+      imageUrl: insertProduct.imageUrl,
+      category: insertProduct.category,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      longDescription: insertProduct.longDescription || null,
+      subCategory: insertProduct.subCategory || null,
+      collection: insertProduct.collection || null,
+      gallery: insertProduct.gallery || null,
+      isNew: insertProduct.isNew || null,
+      isFeatured: insertProduct.isFeatured || null,
+      isBestseller: insertProduct.isBestseller || null,
+      isOnSale: insertProduct.isOnSale || null,
+      discountPercentage: insertProduct.discountPercentage || null,
+      hasVariants: insertProduct.hasVariants || null,
+      availableSizes: insertProduct.availableSizes || null,
+      availableColors: insertProduct.availableColors || null,
+      stock: insertProduct.stock || 0
     };
     this.products.set(id, product);
     return product;
@@ -285,10 +304,16 @@ export class MemStorage implements IStorage {
     const id = this.collectionId++;
     const now = new Date();
     const collection: Collection = {
-      ...insertCollection,
       id,
+      name: insertCollection.name,
+      slug: insertCollection.slug,
+      description: insertCollection.description,
+      imageUrl: insertCollection.imageUrl,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      bannerUrl: insertCollection.bannerUrl || null,
+      isSeasonal: insertCollection.isSeasonal || null,
+      isActive: insertCollection.isActive || null
     };
     this.collections.set(id, collection);
     return collection;
@@ -341,11 +366,16 @@ export class MemStorage implements IStorage {
   // Contact form methods
   async submitContactForm(form: InsertContactForm): Promise<ContactForm> {
     const id = this.contactFormId++;
+    const now = new Date();
     const contactForm: ContactForm = {
-      ...form,
       id,
-      createdAt: new Date(),
-      isRead: false
+      name: form.name,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+      createdAt: now,
+      isRead: false,
+      phone: form.phone || null
     };
     this.contactForms.set(id, contactForm);
     return contactForm;
